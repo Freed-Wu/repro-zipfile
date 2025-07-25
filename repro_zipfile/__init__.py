@@ -82,10 +82,12 @@ class ReproducibleZipFile(ZipFile):
         zinfo = copy(zinfo)
         zinfo.date_time = date_time()
         if zinfo.is_dir():
-            zinfo.external_attr = (0o40000 | dir_mode()) << 16
-            zinfo.external_attr |= 0x10  # MS-DOS directory flag
+            if os.environ.get("REPRO_ZIPFILE_DIR_MODE", None) != "":
+                zinfo.external_attr = (0o40000 | dir_mode()) << 16
+                zinfo.external_attr |= 0x10  # MS-DOS directory flag
         else:
-            zinfo.external_attr = file_mode() << 16
+            if os.environ.get("REPRO_ZIPFILE_FILE_MODE", None) != "":
+                zinfo.external_attr = file_mode() << 16
         #########################
 
         if zinfo.is_dir():
